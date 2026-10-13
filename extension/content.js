@@ -79,6 +79,32 @@
     return wrapper;
   }
 
+  function markUsed() {
+    if (hasUsed) return;
+    hasUsed = true;
+    chrome.storage.local.set({ hasUsed: true });
+  }
+
+  async function enterPip(video) {
+    video.disablePictureInPicture = false;
+    await video.requestPictureInPicture();
+    markUsed();
+  }
+
+  function swallow(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  // pointerdown carries the user activation requestPictureInPicture needs.
+  function onTogglePointerDown(event) {
+    swallow(event);
+    if (event.button !== 0 || !overVideo) return;
+    const video = overVideo;
+    leaveVideo();
+    enterPip(video).catch((err) => console.warn('[firefox-pip]', err));
+  }
+
   function ensureHost() {
     if (host?.isConnected) return;
     host = document.createElement('firefox-pip-overlay');
@@ -89,6 +115,10 @@
     sheet.replaceSync(TOGGLE_CSS);
     root.adoptedStyleSheets = [sheet];
     toggle = buildToggle();
+    toggle.addEventListener('pointerdown', onTogglePointerDown);
+    for (const type of ['pointerup', 'mousedown', 'mouseup', 'click', 'dblclick']) {
+      toggle.addEventListener(type, swallow);
+    }
     overlay = el('div', 'controlsOverlay', toggle);
     root.append(overlay);
     document.documentElement.append(host);
