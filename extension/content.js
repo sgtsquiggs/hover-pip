@@ -264,6 +264,42 @@
     if (!moveTimer) moveTimer = setTimeout(checkLastMouseMove, MOUSEMOVE_PROCESSING_DELAY_MS);
   }
 
+  let shortcutVideo = null;
+
+  function allVideos(root, out = []) {
+    for (const node of root.querySelectorAll('*')) {
+      if (node instanceof HTMLVideoElement) out.push(node);
+      if (node.shadowRoot) allVideos(node.shadowRoot, out);
+    }
+    return out;
+  }
+
+  function inViewport(video) {
+    const r = video.getBoundingClientRect();
+    return r.bottom > 0 && r.right > 0 && r.top < innerHeight && r.left < innerWidth;
+  }
+
+  // Alt+P helpers, called by background.js through chrome.scripting.executeScript.
+  // Like Firefox's shortcut, they ignore the toggle's duration and size rules.
+  FirefoxPip.survey = () => {
+    const best = FirefoxPip.pickBestVideo(allVideos(document).map((video) => ({
+      video,
+      visible: video.checkVisibility() && inViewport(video),
+      readyState: video.readyState,
+      playing: !video.paused && !video.ended,
+      area: video.clientWidth * video.clientHeight,
+    })));
+    shortcutVideo = best?.video ?? null;
+    return {
+      inPip: document.pictureInPictureElement !== null,
+      best: best && { visible: true, readyState: best.readyState, playing: best.playing, area: best.area },
+    };
+  };
+  FirefoxPip.enterBest = () =>
+    shortcutVideo && enterPip(shortcutVideo).catch((err) => console.warn('[firefox-pip]', err));
+  FirefoxPip.exitPip = () =>
+    document.exitPictureInPicture().catch((err) => console.warn('[firefox-pip]', err));
+
   const passive = { capture: true, passive: true };
   window.addEventListener('mousemove', onMouseMove, passive);
   window.addEventListener('mouseout', (event) => {

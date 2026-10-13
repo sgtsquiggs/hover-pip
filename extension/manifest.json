@@ -3,7 +3,14 @@
   "name": "Firefox-style PiP Toggle",
   "version": "0.1.0",
   "description": "Firefox's Picture-in-Picture toggle on hovered videos, for Chromium.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "commands": {
+    "toggle-pip": {
+      "suggested_key": { "default": "Alt+P" },
+      "description": "Toggle Picture-in-Picture"
+    }
+  },
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {
