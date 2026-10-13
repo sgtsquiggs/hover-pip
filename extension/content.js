@@ -100,6 +100,8 @@
   function onTogglePointerDown(event) {
     swallow(event);
     if (event.button !== 0 || !overVideo) return;
+    // leaveVideo() makes the toggle pointer-events:none; capture keeps pointerup/click on it.
+    toggle.setPointerCapture(event.pointerId);
     const video = overVideo;
     leaveVideo();
     enterPip(video).catch((err) => console.warn('[firefox-pip]', err));

@@ -23,7 +23,7 @@
 <script>
   // Records mouse button events that reach the page through the covering div.
   window.pageEvents = [];
-  for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click']) {
+  for (const type of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click']) {
     document.getElementById('cover').addEventListener(type, () => pageEvents.push(type));
   }
 </script>
