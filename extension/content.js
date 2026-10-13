@@ -118,8 +118,11 @@
     return REPLACED.some((type) => full instanceof type) ? null : full;
   }
 
+  // True when a connected host exists; never builds one without a parent.
   function ensureHost() {
-    if (host?.isConnected) return;
+    const parent = hostParent();
+    if (!parent) return false;
+    if (host?.isConnected) return true;
     host = document.createElement('firefox-pip-overlay');
     host.setAttribute('popover', 'manual');
     host.style.cssText = HOST_STYLE;
@@ -134,7 +137,8 @@
     }
     overlay = el('div', 'controlsOverlay', toggle);
     root.append(overlay);
-    hostParent()?.append(host);
+    parent.append(host);
+    return true;
   }
 
   // Re-showing moves the host to the top of the top-layer stack, above
@@ -227,7 +231,7 @@
   }
 
   function enterVideo(video) {
-    ensureHost();
+    if (!ensureHost()) return;
     raise();
     overVideo = video;
     overlay.classList.add('hovering');
