@@ -13,7 +13,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/page.html');
 });
 
-test('clicking the toggle opens PiP and the page never sees the click', async ({ page, sw }) => {
+test('clicking the toggle opens PiP and elements under it never see the click', async ({ page, sw }) => {
   await clickToggleOn(page, '#covered');
   await expect.poll(() => pipId(page)).toBe('covered');
   expect(await page.evaluate(() => window.pageEvents)).toEqual([]);

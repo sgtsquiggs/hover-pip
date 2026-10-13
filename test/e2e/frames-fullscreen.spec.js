@@ -61,3 +61,17 @@ test('no toggle when the <video> itself is fullscreen', async ({ page }) => {
   await page.waitForTimeout(300);
   await expect(toggleIn(page)).toHaveCSS('opacity', '0');
 });
+
+test('toggle works on a shadow-root video in a fullscreen container', async ({ page }) => {
+  await page.goto('/layers.html');
+  await enterFullscreen(page, '#sfsbox', 'sfsbox');
+  await hoverCenter(page, page.locator('#sv'));
+  await expect(toggleIn(page)).toHaveCSS('opacity', '0.8');
+  await hoverToggle(page, page);
+  await expectToggleOnTop(page);
+  await page.mouse.down();
+  await page.mouse.up();
+  await expect.poll(() => page.evaluate(
+    () => document.getElementById('shadowhost').shadowRoot.pictureInPictureElement?.id,
+  )).toBe('sv');
+});

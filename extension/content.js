@@ -1,5 +1,10 @@
-// Firefox-style Picture-in-Picture toggle. Hover logic follows Firefox's
-// PictureInPictureChild.sys.mjs; markup follows videocontrols.js (Firefox 156).
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// Firefox-style Picture-in-Picture toggle, ported from Firefox 156.0.1: hover
+// logic follows PictureInPictureChild.sys.mjs; markup and strings follow
+// videocontrols.js; icon paths come from picture-in-picture-open.svg.
 // Loaded after logic.js and toggle-styles.js in the same isolated world.
 (() => {
   const { isEligible, toggleVariant, TOGGLE_CSS } = FirefoxPip;
@@ -99,8 +104,9 @@
   // pointerdown carries the user activation requestPictureInPicture needs.
   function onTogglePointerDown(event) {
     swallow(event);
-    if (event.button !== 0 || !overVideo) return;
-    // leaveVideo() makes the toggle pointer-events:none; capture keeps pointerup/click on it.
+    // Page scripts can dispatch synthetic pointerdowns on our host.
+    if (!event.isTrusted || event.button !== 0 || !overVideo) return;
+    // leaveVideo() hides the host; capture keeps pointerup/click on the toggle.
     toggle.setPointerCapture(event.pointerId);
     const video = overVideo;
     leaveVideo();
@@ -110,19 +116,30 @@
   const REPLACED = [HTMLVideoElement, HTMLImageElement, HTMLCanvasElement,
     HTMLIFrameElement, HTMLObjectElement, HTMLEmbedElement];
 
-  // Chromium hit-tests only inside the fullscreen element, so the host must
-  // live there to be clickable. Replaced elements can't hold it: null.
-  function hostParent() {
-    const full = document.fullscreenElement;
-    if (!full) return document.documentElement;
-    return REPLACED.some((type) => full instanceof type) ? null : full;
+  // A page ::backdrop rule would otherwise paint over the page while we're open.
+  const BACKDROP_SHEET = new CSSStyleSheet();
+  BACKDROP_SHEET.replaceSync('firefox-pip-overlay::backdrop { display: none !important; }');
+
+  // closest(':modal'), climbing out of shadow roots: a player's shadow-DOM
+  // video still sits inside the page's fullscreen container.
+  function modalAncestor(node) {
+    for (let at = node; at; at = at.getRootNode().host) {
+      const found = at.closest(':modal');
+      if (found) return found;
+    }
+    return null;
   }
 
-  // True when a connected host exists; never builds one without a parent.
-  function ensureHost() {
-    const parent = hostParent();
-    if (!parent) return false;
-    if (host?.isConnected) return true;
+  // A fullscreen element or modal dialog makes everything outside it inert, so
+  // the host must live inside the one around the video to be clickable.
+  // Replaced elements can't hold it: null.
+  function hostParent(video) {
+    const blocker = modalAncestor(video);
+    if (!blocker) return document.documentElement;
+    return REPLACED.some((type) => blocker instanceof type) ? null : blocker;
+  }
+
+  function buildHost(parent) {
     host = document.createElement('firefox-pip-overlay');
     host.setAttribute('popover', 'manual');
     host.style.cssText = HOST_STYLE;
@@ -138,7 +155,6 @@
     overlay = el('div', 'controlsOverlay', toggle);
     root.append(overlay);
     parent.append(host);
-    return true;
   }
 
   // Re-showing moves the host to the top of the top-layer stack, above
@@ -146,6 +162,20 @@
   function raise() {
     if (host.matches(':popover-open')) host.hidePopover();
     host.showPopover();
+  }
+
+  // Puts the host, open and on top, where clicks over the video reach it.
+  // False when there is no such place. Rebuilds a host the page removed.
+  function placeHost(video) {
+    const parent = hostParent(video);
+    if (!parent) return false;
+    if (!document.adoptedStyleSheets.includes(BACKDROP_SHEET)) {
+      document.adoptedStyleSheets = [...document.adoptedStyleSheets, BACKDROP_SHEET];
+    }
+    if (!host?.isConnected) buildHost(parent);
+    else if (host.parentNode !== parent) parent.append(host);
+    raise();
+    return true;
   }
 
   function describe(video) {
@@ -175,10 +205,25 @@
     return out;
   }
 
+  // Alpha of a computed color: rgb(r, g, b), rgba(r, g, b, a) or fn(... / a).
+  function alpha(color) {
+    const args = color.slice(color.indexOf('(') + 1, -1);
+    const a = args.includes('/') ? args.split('/')[1] : args.split(',')[3];
+    return a === undefined ? 1 : Number(a);
+  }
+
+  // A cheap stand-in for Firefox's only-visible hit test: a solid background
+  // at full opacity hides what is under it. Gradients and images don't count.
+  function isOpaque(node) {
+    const style = getComputedStyle(node);
+    return style.opacity === '1' && alpha(style.backgroundColor) === 1;
+  }
+
+  // The topmost video under the point, unless modal or opaque content covers it.
   function videoAt(x, y) {
     for (const node of elementsAt(document, x, y)) {
       if (node instanceof HTMLVideoElement) return node;
-      if (isModal(node)) return null;
+      if (isModal(node) || isOpaque(node)) return null;
     }
     return null;
   }
@@ -230,13 +275,8 @@
     idleTimer = setTimeout(() => overlay.setAttribute('hidetoggle', 'true'), TOGGLE_HIDING_TIMEOUT_MS);
   }
 
-  function enterVideo(video) {
-    if (!ensureHost()) return;
-    raise();
-    overVideo = video;
-    overlay.classList.add('hovering');
-  }
-
+  // The host leaves the top layer, so it can't hold page :popover-open or
+  // ::backdrop styling while no video is hovered.
   function leaveVideo() {
     if (!overVideo) return;
     overVideo = null;
@@ -244,16 +284,18 @@
     toggle.classList.remove('hovering');
     overlay.removeAttribute('hidetoggle');
     clearTimeout(idleTimer);
+    if (host.matches(':popover-open')) host.hidePopover();
   }
 
   function checkLastMouseMove() {
     moveTimer = 0;
     const video = videoAt(lastPoint.x, lastPoint.y);
-    if (!video || !isEligible(describe(video)) || !hostParent()) {
+    if (!video || !isEligible(describe(video)) || !placeHost(video)) {
       leaveVideo();
       return;
     }
-    if (video !== overVideo) enterVideo(video);
+    overVideo = video;
+    overlay.classList.add('hovering');
     layout();
     toggle.classList.toggle('hovering', isOverToggle(lastPoint.x, lastPoint.y));
     resetIdleTimer();
@@ -309,13 +351,6 @@
   window.addEventListener('resize', scheduleLayout, { passive: true });
   // Entering fullscreen puts the page's element above us in the top layer.
   document.addEventListener('fullscreenchange', () => {
-    if (!host?.isConnected) return;
-    const parent = hostParent();
-    if (!parent) {
-      leaveVideo();
-      return;
-    }
-    if (host.parentNode !== parent) parent.append(host);
-    raise();
+    if (overVideo && !placeHost(overVideo)) leaveVideo();
   });
 })();

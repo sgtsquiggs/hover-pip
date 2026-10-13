@@ -1,0 +1,37 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>PiP top-layer fixtures</title>
+<style>
+  body { margin: 0; padding: 20px; background: #222; }
+  section { position: relative; margin-bottom: 40px; width: max-content; }
+  video { display: block; width: 640px; height: 360px; }
+  /* A page-wide backdrop rule; it must never paint through the overlay host. */
+  ::backdrop { background: red; }
+  /* Covers the right part of the video, where the toggle sits. */
+  .menu { position: absolute; right: 0; top: 120px; width: 280px; height: 200px; }
+  #opaque { background: #eee; }
+  #alpha { background: rgba(238, 238, 238, 0.9); }
+  #faded { background: #eee; opacity: 0.9; }
+</style>
+<section><video id="plain" src="media/long.webm"></video></section>
+<section><video id="v-opaque" src="media/long.webm"></video><div class="menu" id="opaque"></div></section>
+<section><video id="v-alpha" src="media/long.webm"></video><div class="menu" id="alpha"></div></section>
+<section><video id="v-faded" src="media/long.webm"></video><div class="menu" id="faded"></div></section>
+<section id="sfsbox"><div id="shadowhost"></div></section>
+<dialog id="dlg"><video id="inmodal" src="media/long.webm"></video></dialog>
+<script>
+  // Records mouse button events that reach page elements.
+  window.pageEvents = [];
+  const record = (el) => {
+    for (const type of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click']) {
+      el.addEventListener(type, () => pageEvents.push(`${el.id}:${type}`));
+    }
+  };
+  for (const id of ['opaque', 'alpha', 'faded', 'dlg', 'inmodal']) record(document.getElementById(id));
+  const root = document.getElementById('shadowhost').attachShadow({ mode: 'open' });
+  const video = document.createElement('video');
+  video.id = 'sv';
+  video.style.cssText = 'display: block; width: 640px; height: 360px';
+  video.src = 'media/long.webm';
+  root.append(video);
+</script>
