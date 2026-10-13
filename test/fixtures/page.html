@@ -1,0 +1,29 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>PiP fixtures</title>
+<style>
+  body { margin: 0; padding: 20px; background: #222; }
+  section { position: relative; margin-bottom: 40px; width: max-content; }
+  video { display: block; width: 640px; height: 360px; }
+  #wide { width: 960px; height: 540px; }
+  #small { width: 300px; height: 169px; }
+  #tiny { width: 100px; height: 100px; }
+  #cover { position: absolute; inset: 0; }
+  #modal { position: absolute; left: 240px; top: 150px; width: 200px; height: 100px; margin: 0; }
+</style>
+<section><video id="long" src="media/long.webm"></video></section>
+<section><video id="wide" src="media/long.webm"></video></section>
+<section><video id="small" src="media/long.webm"></video></section>
+<section><video id="covered" src="media/long.webm"></video><div id="cover"></div></section>
+<section><video id="short" src="media/short.webm"></video></section>
+<section><video id="tiny" src="media/long.webm"></video></section>
+<section><video id="nopip" src="media/long.webm" disablepictureinpicture></video></section>
+<section id="fsbox"><video id="fsvideo" src="media/long.webm"></video></section>
+<dialog id="modal">dialog over the video</dialog>
+<script>
+  // Records mouse button events that reach the page through the covering div.
+  window.pageEvents = [];
+  for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click']) {
+    document.getElementById('cover').addEventListener(type, () => pageEvents.push(type));
+  }
+</script>

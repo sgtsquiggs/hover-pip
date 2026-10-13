@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Firefox-style PiP Toggle",
+  "version": "0.1.0",
+  "description": "Firefox's Picture-in-Picture toggle on hovered videos, for Chromium.",
+  "permissions": ["storage"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["logic.js", "toggle-styles.js", "content.js"],
+      "all_frames": true,
+      "match_about_blank": true,
+      "run_at": "document_idle"
+    }
+  ]
+}
