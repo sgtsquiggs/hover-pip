@@ -345,6 +345,11 @@ FirefoxPip.TOGGLE_CSS = String.raw`
   line-height: normal;
 }
 
+/* Firefox renders the label bold; Chromium's button reset drops it. */
+.pip-wrapper .pip-label {
+  font-weight: bold;
+}
+
 /* Firefox hit-tests the toggle geometrically; here it receives real events,
  * but only while the video is hovered. */
 .controlsOverlay.hovering > .pip-wrapper,
