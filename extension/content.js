@@ -105,6 +105,17 @@
     enterPip(video).catch((err) => console.warn('[firefox-pip]', err));
   }
 
+  const REPLACED = [HTMLVideoElement, HTMLImageElement, HTMLCanvasElement,
+    HTMLIFrameElement, HTMLObjectElement, HTMLEmbedElement];
+
+  // Chromium hit-tests only inside the fullscreen element, so the host must
+  // live there to be clickable. Replaced elements can't hold it: null.
+  function hostParent() {
+    const full = document.fullscreenElement;
+    if (!full) return document.documentElement;
+    return REPLACED.some((type) => full instanceof type) ? null : full;
+  }
+
   function ensureHost() {
     if (host?.isConnected) return;
     host = document.createElement('firefox-pip-overlay');
@@ -121,7 +132,7 @@
     }
     overlay = el('div', 'controlsOverlay', toggle);
     root.append(overlay);
-    document.documentElement.append(host);
+    hostParent()?.append(host);
   }
 
   // Re-showing moves the host to the top of the top-layer stack, above
@@ -232,7 +243,7 @@
   function checkLastMouseMove() {
     moveTimer = 0;
     const video = videoAt(lastPoint.x, lastPoint.y);
-    if (!video || !isEligible(describe(video))) {
+    if (!video || !isEligible(describe(video)) || !hostParent()) {
       leaveVideo();
       return;
     }
@@ -254,4 +265,15 @@
   }, passive);
   window.addEventListener('scroll', scheduleLayout, passive);
   window.addEventListener('resize', scheduleLayout, { passive: true });
+  // Entering fullscreen puts the page's element above us in the top layer.
+  document.addEventListener('fullscreenchange', () => {
+    if (!host?.isConnected) return;
+    const parent = hostParent();
+    if (!parent) {
+      leaveVideo();
+      return;
+    }
+    if (host.parentNode !== parent) parent.append(host);
+    raise();
+  });
 })();
