@@ -198,11 +198,13 @@
   }
 
   // Elements under the point, topmost first, descending into open shadow roots.
+  // A shadow root's list also holds outer-tree elements, which the caller
+  // already has; skip them rather than stop at the host, which is missing
+  // when it has no box (display: contents) and would let us recurse back up.
   function elementsAt(root, x, y) {
     const out = [];
     for (const node of root.elementsFromPoint(x, y)) {
-      if (node === host) continue;
-      if (root instanceof ShadowRoot && node === root.host) break;
+      if (node === host || node.getRootNode() !== root) continue;
       if (node.shadowRoot) out.push(...elementsAt(node.shadowRoot, x, y));
       out.push(node);
     }

@@ -18,6 +18,7 @@
 <section><video id="v-alpha" src="media/long.webm"></video><div class="menu" id="alpha"></div></section>
 <section><video id="v-faded" src="media/long.webm"></video><div class="menu" id="faded"></div></section>
 <section id="sfsbox"><div id="shadowhost"></div></section>
+<section><div id="nesthost"></div></section>
 <dialog id="dlg"><video id="inmodal" src="media/long.webm"></video></dialog>
 <script>
   // Records mouse button events that reach page elements.
@@ -34,4 +35,13 @@
   video.style.cssText = 'display: block; width: 640px; height: 360px';
   video.src = 'media/long.webm';
   root.append(video);
+  // A display: contents shadow host inside another shadow root: it has no box,
+  // so its shadow root's elementsFromPoint skips it and lists the outer host.
+  const outer = document.getElementById('nesthost').attachShadow({ mode: 'open' });
+  const inner = document.createElement('div');
+  inner.style.display = 'contents';
+  outer.append(inner);
+  const nested = video.cloneNode();
+  nested.id = 'nv';
+  inner.attachShadow({ mode: 'open' }).append(nested);
 </script>

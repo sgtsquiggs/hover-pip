@@ -94,3 +94,10 @@ test('toggle works on a video in an open shadow root', async ({ page }) => {
     () => document.getElementById('shadowhost').shadowRoot.pictureInPictureElement?.id,
   )).toBe('sv');
 });
+
+test('toggle works on a video under a display: contents shadow host in another shadow root', async ({ page }) => {
+  await clickToggleOn(page, '#nv');
+  await expect.poll(() => page.evaluate(
+    () => document.getElementById('nesthost').shadowRoot.firstChild.shadowRoot.pictureInPictureElement?.id,
+  )).toBe('nv');
+});
