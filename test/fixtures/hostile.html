@@ -1,0 +1,12 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>PiP hostile page fixture</title>
+<style>body { margin: 0; padding: 20px; background: #222; } video { display: block; width: 640px; height: 360px; }</style>
+<video id="v" src="media/long.webm"></video>
+<script>
+  // Claims the toggle's element name and refuses it a shadow root, so building
+  // the toggle throws on every hover.
+  customElements.define('hover-pip-overlay', class extends HTMLElement {
+    static disabledFeatures = ['shadow'];
+  });
+</script>
