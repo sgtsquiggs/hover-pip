@@ -18,8 +18,8 @@ Tested on Chromium 153 and 156.
 1. Open `chrome://extensions` and turn on **Developer mode**.
 2. Click **Load unpacked** and pick the `extension/` directory.
 
-Tabs that were open before installing, or before reloading the extension, need a
-refresh before the toggle shows in them.
+Tabs that are already open get the toggle right away, after an install or an
+update.
 
 ## Differences from Firefox
 

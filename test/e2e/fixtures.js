@@ -1,4 +1,6 @@
 // Playwright fixtures: headed Chromium (under xvfb-run) with the unpacked extension.
+const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { test: base, expect, chromium } = require('@playwright/test');
@@ -10,7 +12,13 @@ const CROSS_ORIGIN = `http://127.0.0.1:${PORT}`;
 
 const test = base.extend({
   context: async ({}, use) => {
-    const context = await chromium.launchPersistentContext('', {
+    // Developer mode, as for any unpacked install: without it Chromium
+    // disables an unpacked extension that reloads ("may have been corrupted").
+    const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'hover-pip-'));
+    fs.mkdirSync(path.join(profile, 'Default'));
+    fs.writeFileSync(path.join(profile, 'Default', 'Preferences'),
+      JSON.stringify({ extensions: { ui: { developer_mode: true } } }));
+    const context = await chromium.launchPersistentContext(profile, {
       channel: 'chromium',
       headless: false,
       baseURL: ORIGIN,
@@ -23,6 +31,7 @@ const test = base.extend({
     });
     await use(context);
     await context.close();
+    fs.rmSync(profile, { recursive: true, force: true });
   },
   sw: async ({ context }, use) => {
     let [sw] = context.serviceWorkers();
@@ -67,6 +76,17 @@ async function setHasUsed(sw, value) {
   await sw.evaluate((v) => chrome.storage.local.set({ hasUsed: v }), value);
 }
 
+// Reloads the extension the way an update does and returns the new service
+// worker. Tabs keep the old content script, orphaned.
+async function reloadExtension(context, sw) {
+  const closed = new Promise((resolve) => sw.once('close', resolve));
+  const next = context.waitForEvent('serviceworker', { timeout: 10_000 });
+  // Deferred so evaluate returns before the worker goes away.
+  await sw.evaluate(() => { setTimeout(() => chrome.runtime.reload(), 50); });
+  await closed;
+  return next;
+}
+
 const pipId = (scope) => scope.evaluate(() => document.pictureInPictureElement?.id ?? null);
 
 function pressAltP() {
@@ -75,5 +95,5 @@ function pressAltP() {
 
 module.exports = {
   test, expect, ORIGIN, CROSS_ORIGIN,
-  toggleIn, hoverCenter, toggleBox, hoverToggle, setHasUsed, pipId, pressAltP,
+  toggleIn, hoverCenter, toggleBox, hoverToggle, setHasUsed, pipId, pressAltP, reloadExtension,
 };
