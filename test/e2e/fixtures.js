@@ -34,7 +34,7 @@ const test = base.extend({
   },
 });
 
-const toggleIn = (scope) => scope.locator('firefox-pip-overlay .pip-wrapper');
+const toggleIn = (scope) => scope.locator('hover-pip-overlay .pip-wrapper');
 
 // Moves the mouse onto the video's centre (two moves, so the content script
 // sees movement inside the video). Returns the video's bounding box.

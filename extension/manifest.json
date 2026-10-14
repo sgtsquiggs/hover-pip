@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Firefox-style PiP Toggle",
+  "name": "Hover PiP",
   "version": "0.1.0",
-  "description": "Firefox's Picture-in-Picture toggle on hovered videos, for Chromium.",
+  "description": "A Picture-in-Picture button on hovered videos, ported from Firefox's toggle.",
   "permissions": ["storage", "scripting"],
   "host_permissions": ["<all_urls>"],
   "commands": {

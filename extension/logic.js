@@ -33,5 +33,5 @@
 
   const api = { isEligible, toggleVariant, pickBestVideo };
   if (typeof module === 'object' && module.exports) module.exports = api;
-  else root.FirefoxPip = Object.assign(root.FirefoxPip ?? {}, api);
+  else root.HoverPip = Object.assign(root.HoverPip ?? {}, api);
 })(globalThis);

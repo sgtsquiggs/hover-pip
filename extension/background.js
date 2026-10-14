@@ -6,7 +6,7 @@ importScripts('logic.js');
 
 chrome.commands.onCommand.addListener((command, tab) => {
   if (command !== 'toggle-pip' || tab?.id === undefined) return;
-  togglePip(tab.id).catch((err) => console.warn('[firefox-pip]', err));
+  togglePip(tab.id).catch((err) => console.warn('[hover-pip]', err));
 });
 
 // Frames without the content script (e.g. the Web Store) return null and are skipped.
@@ -16,14 +16,14 @@ async function inFrames(tabId, target, func) {
 }
 
 async function togglePip(tabId) {
-  const frames = await inFrames(tabId, { allFrames: true }, () => globalThis.FirefoxPip?.survey?.() ?? null);
+  const frames = await inFrames(tabId, { allFrames: true }, () => globalThis.HoverPip?.survey?.() ?? null);
   const pipFrame = frames.find((f) => f.inPip);
   if (pipFrame) {
-    await inFrames(tabId, { frameIds: [pipFrame.frameId] }, () => FirefoxPip.exitPip());
+    await inFrames(tabId, { frameIds: [pipFrame.frameId] }, () => HoverPip.exitPip());
     return;
   }
-  const best = FirefoxPip.pickBestVideo(
+  const best = HoverPip.pickBestVideo(
     frames.filter((f) => f.best).map((f) => ({ ...f.best, frameId: f.frameId })),
   );
-  if (best) await inFrames(tabId, { frameIds: [best.frameId] }, () => FirefoxPip.enterBest());
+  if (best) await inFrames(tabId, { frameIds: [best.frameId] }, () => HoverPip.enterBest());
 }

@@ -1,9 +1,9 @@
-# firefox-pip-chrome
+# Hover PiP
 
-Firefox's Picture-in-Picture toggle for Chromium browsers. Hover a video and the
-toggle appears on its right edge, as in Firefox. Click it to pop the video out;
-elements under the toggle never see the click (page-level capture listeners
-still observe an event targeted at the extension's overlay).
+A Picture-in-Picture button for Chromium browsers, ported from Firefox's toggle.
+Hover a video and the toggle appears on its right edge, as in Firefox. Click it
+to pop the video out; elements under the toggle never see the click (page-level
+capture listeners still observe an event targeted at the extension's overlay).
 **Alt+P** toggles PiP on the most prominent video. Rebind it at
 `chrome://extensions/shortcuts`.
 

@@ -1,7 +1,7 @@
 const { test, expect, toggleIn, hoverCenter, toggleBox, hoverToggle, pipId } = require('./fixtures');
 
 const hostOpen = (page) => page.evaluate(
-  () => document.querySelector('firefox-pip-overlay')?.matches(':popover-open') ?? false,
+  () => document.querySelector('hover-pip-overlay')?.matches(':popover-open') ?? false,
 );
 
 async function clickToggleOn(page, selector) {
@@ -26,7 +26,7 @@ test('toggle works on a video inside a showModal() dialog; elements under it see
     ([x, y]) => document.elementFromPoint(x, y)?.localName,
     [box.x + box.width / 2, box.y + box.height / 2],
   );
-  expect(topmost).toBe('firefox-pip-overlay');
+  expect(topmost).toBe('hover-pip-overlay');
   await page.mouse.down();
   await page.mouse.up();
   await expect.poll(() => pipId(page)).toBe('inmodal');
@@ -81,10 +81,10 @@ for (const id of ['alpha', 'faded']) {
 test('toggle comes back after the page removes the overlay host', async ({ page }) => {
   const box = await hoverCenter(page, page.locator('#plain'));
   await expect(toggleIn(page)).toHaveCSS('opacity', '0.8');
-  await page.evaluate(() => document.querySelector('firefox-pip-overlay').remove());
+  await page.evaluate(() => document.querySelector('hover-pip-overlay').remove());
   await page.mouse.move(box.x + 100, box.y + 100, { steps: 3 });
   await expect(toggleIn(page)).toHaveCSS('opacity', '0.8');
-  expect(await page.locator('firefox-pip-overlay').count()).toBe(1);
+  expect(await page.locator('hover-pip-overlay').count()).toBe(1);
 });
 
 test('toggle works on a video in an open shadow root', async ({ page }) => {
