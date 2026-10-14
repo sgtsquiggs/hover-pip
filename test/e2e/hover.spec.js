@@ -99,7 +99,7 @@ test("fades out over Firefox's 200 ms when the mouse leaves, then closes the hos
   // Sample, every frame while the mouse leaves, whether the toggle is on screen
   // (host still open) and its opacity: a hidden host shows no fade at all.
   const samples = page.evaluate(() => new Promise((resolve) => {
-    const host = document.querySelector('firefox-pip-overlay');
+    const host = document.querySelector('hover-pip-overlay');
     const wrapper = host.shadowRoot.querySelector('.pip-wrapper');
     const seen = [];
     const end = performance.now() + 600;
@@ -114,6 +114,6 @@ test("fades out over Firefox's 200 ms when the mouse leaves, then closes the hos
   const seen = await samples;
   expect(seen.some((o) => o > 0 && o < 0.8), `no visible fade (-1 = host hidden) in ${seen}`).toBe(true);
   await expect.poll(() => page.evaluate(
-    () => document.querySelector('firefox-pip-overlay').matches(':popover-open'),
+    () => document.querySelector('hover-pip-overlay').matches(':popover-open'),
   )).toBe(false);
 });

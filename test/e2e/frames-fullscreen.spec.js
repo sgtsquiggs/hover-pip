@@ -18,7 +18,7 @@ async function expectToggleOnTop(page) {
     ([x, y]) => document.elementFromPoint(x, y)?.localName,
     [box.x + box.width / 2, box.y + box.height / 2],
   );
-  expect(topmost).toBe('firefox-pip-overlay');
+  expect(topmost).toBe('hover-pip-overlay');
 }
 
 // requestFullscreen() resolves before the window is resized; wait for the
@@ -40,7 +40,7 @@ test('toggle stays above, and clickable in, a fullscreen container', async ({ pa
   // The overlay is laid out on the next mouse-move check.
   await expect.poll(async () => {
     const want = await page.locator('#fsvideo').boundingBox();
-    const got = await page.evaluate(() => document.querySelector('firefox-pip-overlay')
+    const got = await page.evaluate(() => document.querySelector('hover-pip-overlay')
       .shadowRoot.querySelector('.controlsOverlay').getBoundingClientRect().toJSON());
     return got.x === want.x && got.y === want.y && got.width === want.width;
   }).toBe(true);

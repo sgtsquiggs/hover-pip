@@ -2,7 +2,7 @@
 // toolkit/themes/shared/media/pipToggle.css (MPL-2.0, header below). The
 // shared and "NO EXPERIMENT" sections are verbatim except for three
 // Gecko-only declarations; Chromium additions are at the end.
-FirefoxPip.TOGGLE_CSS = String.raw`
+HoverPip.TOGGLE_CSS = String.raw`
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -318,7 +318,7 @@ FirefoxPip.TOGGLE_CSS = String.raw`
   translate: 0 calc(40px - var(--pip-highlight-width));
 }
 
-/* CHROMIUM ADDITIONS (firefox-pip-chrome) */
+/* CHROMIUM ADDITIONS (hover-pip) */
 
 /* Stand-in for Firefox's .videocontrols / .controlsOverlay: a box laid over
  * the hovered video's client rect. */

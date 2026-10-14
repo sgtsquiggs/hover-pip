@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Firefox-style Picture-in-Picture toggle, ported from Firefox 156.0.1: hover
+// Hover PiP: the Picture-in-Picture toggle ported from Firefox 156.0.1. Hover
 // logic follows PictureInPictureChild.sys.mjs; markup and strings follow
 // videocontrols.js; icon paths come from picture-in-picture-open.svg.
 // Loaded after logic.js and toggle-styles.js in the same isolated world.
 (() => {
-  const { isEligible, toggleVariant, TOGGLE_CSS } = FirefoxPip;
+  const { isEligible, toggleVariant, TOGGLE_CSS } = HoverPip;
   const MOUSEMOVE_PROCESSING_DELAY_MS = 50;
   const TOGGLE_HIDING_TIMEOUT_MS = 3000;
   // pipToggle.css's `transition: opacity 200ms` on .pip-wrapper.
@@ -113,7 +113,7 @@
     toggle.setPointerCapture(event.pointerId);
     const video = overVideo;
     leaveVideo();
-    enterPip(video).catch((err) => console.warn('[firefox-pip]', err));
+    enterPip(video).catch((err) => console.warn('[hover-pip]', err));
   }
 
   const REPLACED = [HTMLVideoElement, HTMLImageElement, HTMLCanvasElement,
@@ -121,7 +121,7 @@
 
   // A page ::backdrop rule would otherwise paint over the page while we're open.
   const BACKDROP_SHEET = new CSSStyleSheet();
-  BACKDROP_SHEET.replaceSync('firefox-pip-overlay::backdrop { display: none !important; }');
+  BACKDROP_SHEET.replaceSync('hover-pip-overlay::backdrop { display: none !important; }');
 
   // closest(':modal'), climbing out of shadow roots: a player's shadow-DOM
   // video still sits inside the page's fullscreen container.
@@ -143,7 +143,7 @@
   }
 
   function buildHost(parent) {
-    host = document.createElement('firefox-pip-overlay');
+    host = document.createElement('hover-pip-overlay');
     host.setAttribute('popover', 'manual');
     host.style.cssText = HOST_STYLE;
     const root = host.attachShadow({ mode: 'open' });
@@ -332,8 +332,8 @@
 
   // Alt+P helpers, called by background.js through chrome.scripting.executeScript.
   // Like Firefox's shortcut, they ignore the toggle's duration and size rules.
-  FirefoxPip.survey = () => {
-    const best = FirefoxPip.pickBestVideo(allVideos(document).map((video) => ({
+  HoverPip.survey = () => {
+    const best = HoverPip.pickBestVideo(allVideos(document).map((video) => ({
       video,
       visible: video.checkVisibility() && inViewport(video),
       readyState: video.readyState,
@@ -346,10 +346,10 @@
       best: best && { visible: true, readyState: best.readyState, playing: best.playing, area: best.area },
     };
   };
-  FirefoxPip.enterBest = () =>
-    shortcutVideo && enterPip(shortcutVideo).catch((err) => console.warn('[firefox-pip]', err));
-  FirefoxPip.exitPip = () =>
-    document.exitPictureInPicture().catch((err) => console.warn('[firefox-pip]', err));
+  HoverPip.enterBest = () =>
+    shortcutVideo && enterPip(shortcutVideo).catch((err) => console.warn('[hover-pip]', err));
+  HoverPip.exitPip = () =>
+    document.exitPictureInPicture().catch((err) => console.warn('[hover-pip]', err));
 
   const passive = { capture: true, passive: true };
   window.addEventListener('mousemove', onMouseMove, passive);
