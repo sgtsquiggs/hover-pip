@@ -10,6 +10,8 @@
   const { isEligible, toggleVariant, TOGGLE_CSS } = FirefoxPip;
   const MOUSEMOVE_PROCESSING_DELAY_MS = 50;
   const TOGGLE_HIDING_TIMEOUT_MS = 3000;
+  // pipToggle.css's `transition: opacity 200ms` on .pip-wrapper.
+  const TOGGLE_FADE_MS = 200;
   const SVG_NS = 'http://www.w3.org/2000/svg';
   // Proton paths from picture-in-picture-open.svg (MPL-2.0).
   const ICON_PATHS = [
@@ -33,6 +35,7 @@
   let lastPoint = null;
   let moveTimer = 0;
   let idleTimer = 0;
+  let closeTimer = 0;
   let layoutFrame = 0;
   let hasUsed = false;
 
@@ -169,6 +172,7 @@
   function placeHost(video) {
     const parent = hostParent(video);
     if (!parent) return false;
+    clearTimeout(closeTimer);
     if (!document.adoptedStyleSheets.includes(BACKDROP_SHEET)) {
       document.adoptedStyleSheets = [...document.adoptedStyleSheets, BACKDROP_SHEET];
     }
@@ -275,8 +279,8 @@
     idleTimer = setTimeout(() => overlay.setAttribute('hidetoggle', 'true'), TOGGLE_HIDING_TIMEOUT_MS);
   }
 
-  // The host leaves the top layer, so it can't hold page :popover-open or
-  // ::backdrop styling while no video is hovered.
+  // The host leaves the top layer once the toggle has faded out, so it can't
+  // hold page :popover-open or ::backdrop styling while no video is hovered.
   function leaveVideo() {
     if (!overVideo) return;
     overVideo = null;
@@ -284,7 +288,10 @@
     toggle.classList.remove('hovering');
     overlay.removeAttribute('hidetoggle');
     clearTimeout(idleTimer);
-    if (host.matches(':popover-open')) host.hidePopover();
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      if (!overVideo && host.matches(':popover-open')) host.hidePopover();
+    }, TOGGLE_FADE_MS);
   }
 
   function checkLastMouseMove() {

@@ -92,3 +92,28 @@ test("after first use: compact 40px toggle at Firefox's position", async ({ page
   expect(video.x + video.width - (small.x + small.width)).toBeCloseTo(18, 0);
   expect(small.y - video.y).toBeCloseTo(video.height * 0.7 - 40, 0);
 });
+
+test("fades out over Firefox's 200 ms when the mouse leaves, then closes the host", async ({ page }) => {
+  const box = await hoverCenter(page, page.locator('#long'));
+  await expect(toggleIn(page)).toHaveCSS('opacity', '0.8');
+  // Sample, every frame while the mouse leaves, whether the toggle is on screen
+  // (host still open) and its opacity: a hidden host shows no fade at all.
+  const samples = page.evaluate(() => new Promise((resolve) => {
+    const host = document.querySelector('firefox-pip-overlay');
+    const wrapper = host.shadowRoot.querySelector('.pip-wrapper');
+    const seen = [];
+    const end = performance.now() + 600;
+    (function sample() {
+      const opacity = Number(getComputedStyle(wrapper).opacity);
+      seen.push(host.matches(':popover-open') ? opacity : -1);
+      if (performance.now() < end) requestAnimationFrame(sample);
+      else resolve(seen);
+    })();
+  }));
+  await page.mouse.move(box.x + box.width + 100, box.y + 10, { steps: 2 });
+  const seen = await samples;
+  expect(seen.some((o) => o > 0 && o < 0.8), `no visible fade (-1 = host hidden) in ${seen}`).toBe(true);
+  await expect.poll(() => page.evaluate(
+    () => document.querySelector('firefox-pip-overlay').matches(':popover-open'),
+  )).toBe(false);
+});
