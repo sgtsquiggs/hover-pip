@@ -16,6 +16,7 @@
   const TOGGLE_HIDING_TIMEOUT_MS = 3000;
   // pipToggle.css's `transition: opacity 200ms` on .pip-wrapper.
   const TOGGLE_FADE_MS = 200;
+  const MAX_ERRORS = 5;
   const SVG_NS = 'http://www.w3.org/2000/svg';
   // Proton paths from picture-in-picture-open.svg (MPL-2.0).
   const ICON_PATHS = [
@@ -42,6 +43,7 @@
   let closeTimer = 0;
   let layoutFrame = 0;
   let hasUsed = false;
+  let errorCount = 0;
 
   chrome.storage.local.get('hasUsed').then((r) => {
     hasUsed = r.hasUsed === true;
@@ -155,7 +157,7 @@
     sheet.replaceSync(TOGGLE_CSS);
     root.adoptedStyleSheets = [sheet];
     toggle = buildToggle();
-    toggle.addEventListener('pointerdown', onTogglePointerDown);
+    toggle.addEventListener('pointerdown', guarded(onTogglePointerDown));
     for (const type of ['pointerup', 'mousedown', 'mouseup', 'click', 'dblclick']) {
       toggle.addEventListener(type, swallow);
     }
@@ -273,10 +275,10 @@
 
   function scheduleLayout() {
     if (!overVideo || layoutFrame) return;
-    layoutFrame = requestAnimationFrame(() => {
+    layoutFrame = requestAnimationFrame(guarded(() => {
       layoutFrame = 0;
       layout();
-    });
+    }));
   }
 
   function resetIdleTimer() {
@@ -327,13 +329,41 @@
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== BACKDROP_SHEET);
   }
 
+  // Unknown pages break assumptions (a display: contents shadow host once
+  // recursed forever). Wraps each entry point so a failure hides the toggle
+  // instead of throwing on every mouse move: warn once, and give up on a page
+  // that keeps failing. Alt+P doesn't use the toggle and keeps working.
+  function guarded(fn) {
+    return (...args) => {
+      try {
+        fn(...args);
+      } catch (err) {
+        errorCount += 1;
+        if (errorCount === 1) console.warn('[hover-pip]', err);
+        if (errorCount >= MAX_ERRORS) {
+          console.warn('[hover-pip] toggle turned off on this page after repeated errors');
+          retire();
+          return;
+        }
+        try {
+          leaveVideo();
+        } catch {
+          // The page broke this too; the next mouse move retries from scratch.
+          overVideo = null;
+        }
+      }
+    };
+  }
+
+  const checkMove = guarded(checkLastMouseMove);
+
   function onMouseMove(event) {
     if (!chrome.runtime?.id) {
       retire();
       return;
     }
     lastPoint = { x: event.clientX, y: event.clientY };
-    if (!moveTimer) moveTimer = setTimeout(checkLastMouseMove, MOUSEMOVE_PROCESSING_DELAY_MS);
+    if (!moveTimer) moveTimer = setTimeout(checkMove, MOUSEMOVE_PROCESSING_DELAY_MS);
   }
 
   let shortcutVideo = null;
@@ -376,13 +406,13 @@
   const { signal } = listening;
   const passive = { capture: true, passive: true, signal };
   window.addEventListener('mousemove', onMouseMove, passive);
-  window.addEventListener('mouseout', (event) => {
+  window.addEventListener('mouseout', guarded((event) => {
     if (!event.relatedTarget) leaveVideo();
-  }, passive);
+  }), passive);
   window.addEventListener('scroll', scheduleLayout, passive);
   window.addEventListener('resize', scheduleLayout, { passive: true, signal });
   // Entering fullscreen puts the page's element above us in the top layer.
-  document.addEventListener('fullscreenchange', () => {
+  document.addEventListener('fullscreenchange', guarded(() => {
     if (overVideo && !placeHost(overVideo)) leaveVideo();
-  }, { signal });
+  }), { signal });
 })();
