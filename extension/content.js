@@ -7,6 +7,10 @@
 // videocontrols.js; icon paths come from picture-in-picture-open.svg.
 // Loaded after logic.js and toggle-styles.js in the same isolated world.
 (() => {
+  // background.js injects into open tabs on install and update; a tab that
+  // loads meanwhile also gets the declared content script.
+  if (HoverPip.loaded) return;
+  HoverPip.loaded = true;
   const { isEligible, toggleVariant, TOGGLE_CSS } = HoverPip;
   const MOUSEMOVE_PROCESSING_DELAY_MS = 50;
   const TOGGLE_HIDING_TIMEOUT_MS = 3000;
@@ -310,7 +314,24 @@
     resetIdleTimer();
   }
 
+  // An update, disable or uninstall leaves this script running in the page
+  // with its extension APIs gone. Remove every trace, so a copy injected by
+  // the new version runs alone.
+  function retire() {
+    listening.abort();
+    clearTimeout(moveTimer);
+    clearTimeout(idleTimer);
+    clearTimeout(closeTimer);
+    cancelAnimationFrame(layoutFrame);
+    host?.remove();
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== BACKDROP_SHEET);
+  }
+
   function onMouseMove(event) {
+    if (!chrome.runtime?.id) {
+      retire();
+      return;
+    }
     lastPoint = { x: event.clientX, y: event.clientY };
     if (!moveTimer) moveTimer = setTimeout(checkLastMouseMove, MOUSEMOVE_PROCESSING_DELAY_MS);
   }
@@ -351,15 +372,17 @@
   HoverPip.exitPip = () =>
     document.exitPictureInPicture().catch((err) => console.warn('[hover-pip]', err));
 
-  const passive = { capture: true, passive: true };
+  const listening = new AbortController();
+  const { signal } = listening;
+  const passive = { capture: true, passive: true, signal };
   window.addEventListener('mousemove', onMouseMove, passive);
   window.addEventListener('mouseout', (event) => {
     if (!event.relatedTarget) leaveVideo();
   }, passive);
   window.addEventListener('scroll', scheduleLayout, passive);
-  window.addEventListener('resize', scheduleLayout, { passive: true });
+  window.addEventListener('resize', scheduleLayout, { passive: true, signal });
   // Entering fullscreen puts the page's element above us in the top layer.
   document.addEventListener('fullscreenchange', () => {
     if (overVideo && !placeHost(overVideo)) leaveVideo();
-  });
+  }, { signal });
 })();
