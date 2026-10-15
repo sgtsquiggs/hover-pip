@@ -43,13 +43,15 @@ for (const [i, name] of shots.entries()) {
 frame('explainer', cropAround('explainer', 1200, 750), path.join(MEDIA, 'toggle.png'));
 frame('compact', cropAround('compact', 640, 400, 0.7), path.join(MEDIA, 'toggle-compact.png'));
 
-// Small promo tile: the toggle over the video on the right, the name on a
-// scrim on the left.
+// Small promo tile: the toggle over the video on the right, the icon and name
+// on a scrim on the left.
 const tileBg = path.join(OUT, 'tile-bg.png');
 frame('toggle', `${cropAround('toggle', 1320, 840, 0.76)},scale=440:280:flags=lanczos`, tileBg);
 magick(tileBg,
   '(', '-size', '280x440', 'gradient:rgba(10,10,14,0.92)-rgba(10,10,14,0)', '-rotate', '-90', ')',
   '-gravity', 'west', '-composite',
+  '(', path.resolve(__dirname, '../../extension/icons/icon-128.png'), '-resize', '72x72', ')',
+  '-geometry', '+14-82', '-composite',
   '-fill', 'white', '-font', 'Noto-Sans-Bold', '-pointsize', '40', '-annotate', '+22-18', 'Hover PiP',
   '-fill', '#d6d6dc', '-font', 'Noto-Sans-Regular', '-pointsize', '17', '-annotate', '+24+22', 'Pop out any video',
   path.join(STORE, 'promo-small-440x280.png'));

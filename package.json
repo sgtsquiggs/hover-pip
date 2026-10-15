@@ -6,6 +6,7 @@
     "bump": "node scripts/bump-version.js",
     "demo": "env -u WAYLAND_DISPLAY xvfb-run -a -s '-screen 0 2560x1600x24' node scripts/demo/record.js",
     "demo:media": "node scripts/demo/make-media.js",
+    "icons": "node scripts/icons.js",
     "package": "node scripts/package.js",
     "test": "node --test 'test/unit/*.test.js'",
     "test:e2e": "env -u WAYLAND_DISPLAY xvfb-run -a -s '-screen 0 1920x1080x24' playwright test",
