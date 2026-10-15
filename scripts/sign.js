@@ -48,7 +48,10 @@ if (require.main === module) {
   const packed = `${source}.crx`;
   fs.rmSync(packed, { force: true });
   // Chromium writes <dir>.crx next to the directory and exits without a window.
+  // Packing renders nothing, so the sandbox, which Ubuntu 24.04's AppArmor
+  // blocks for unprivileged users, isn't needed.
   execFileSync(chromiumPath(), [
+    '--no-sandbox',
     `--pack-extension=${source}`,
     `--pack-extension-key=${path.resolve(keyFile)}`,
     '--no-message-box',
