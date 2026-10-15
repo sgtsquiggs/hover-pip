@@ -64,3 +64,22 @@ jobs:
         run: >
           gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes
           dist/hover-pip-*.crx dist/hover-pip-*.zip dist/update.xml
+      # update_url points at GitHub Pages, which allows cross-origin reads;
+      # chromium-web-store can't read a release asset.
+      - run: mkdir dist/pages && cp dist/update.xml dist/pages/
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist/pages
+
+  pages:
+    needs: release
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}update.xml
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

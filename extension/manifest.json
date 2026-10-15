@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Hover PiP",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "minimum_chrome_version": "153",
-  "update_url": "https://github.com/sgtsquiggs/hover-pip/releases/latest/download/update.xml",
+  "update_url": "https://sgtsquiggs.github.io/hover-pip/update.xml",
   "description": "A Picture-in-Picture button on hovered videos, ported from Firefox's toggle.",
   "icons": {
     "16": "icons/icon-16.png",

@@ -95,6 +95,8 @@ npm run demo && npm run demo:media   # re-record the demo, regenerate media/
   both are trademarks.
 - The `HOVER_PIP_CRX_KEY` secret fixes the extension ID,
   `iklppbfbkekmbjalepgliappemgchmij`. Never replace the key or change the
-  manifest's `update_url`: installed copies would stop updating.
+  manifest's `update_url` (GitHub Pages, deployed by the Release workflow):
+  installed copies would stop updating. It must stay on a host that allows
+  cross-origin reads; chromium-web-store fetches it without host permissions.
 - Thresholds and behaviour follow Firefox 156. When porting more, cite the
   Firefox source file. The README lists the deliberate differences.

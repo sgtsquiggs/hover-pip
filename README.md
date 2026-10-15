@@ -110,10 +110,12 @@ renders `extension/icons/icon-{16,32,48,128}.png`.
 The tag starts the Release workflow. It checks that the tag matches the
 manifest version and is on `main`, then runs the CI job: unit tests,
 `npm run package` and the e2e suite against the packaged zip. It signs that zip
-into `hover-pip-<version>.crx` and publishes a GitHub release with the `.crx`,
-the `.zip` and `update.xml`. The manifest's `update_url` points at
-`releases/latest/download/update.xml`, so every installed copy checks the
-newest release.
+into `hover-pip-<version>.crx`, publishes a GitHub release with the `.crx`,
+the `.zip` and `update.xml`, and deploys `update.xml` to GitHub Pages. The
+manifest's `update_url` is <https://sgtsquiggs.github.io/hover-pip/update.xml>:
+Pages allows cross-origin reads, which chromium-web-store needs, and a release
+asset doesn't. `npm run test:smoke` checks that an extension without host
+permissions can read it.
 
 `npm run package` writes `dist/hover-pip-<version>.zip`: the extension plus
 `LICENSE`, after checking that every file the manifest names exists. CI builds
