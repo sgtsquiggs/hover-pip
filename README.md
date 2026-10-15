@@ -36,7 +36,18 @@ npm install
 npx playwright install chromium
 npm test            # unit tests (node:test)
 npm run test:e2e    # Playwright, headed under xvfb-run; needs ffmpeg, Xvfb, uv
+npm run test:smoke  # live sites (YouTube, Vimeo, Twitch, Commons, Internet Archive)
 ```
+
+CI runs `npm test` and `npm run test:e2e` on every pull request; `main` only
+takes pull requests that pass. The smoke tests stay out of CI, since live sites
+change and many block datacenter IPs. They use `/usr/bin/chromium`, which has
+the proprietary codecs Playwright's Chromium lacks; set `CHROMIUM_PATH` for
+another build.
+
+Before a release, also check by hand what automation can't reach: a signed-in
+DRM site (Netflix, Disney+ or Prime Video), Reddit and X feeds, a site with a
+cookie or consent wall, and Edge and Brave as well as Chromium.
 
 `npm run test:e2e` clears `test-results/` before each run. To compare the toggle
 with Firefox's own, screenshot both into `test-results/parity/`:

@@ -19,7 +19,8 @@ const test = base.extend({
     fs.writeFileSync(path.join(profile, 'Default', 'Preferences'),
       JSON.stringify({ extensions: { ui: { developer_mode: true } } }));
     const context = await chromium.launchPersistentContext(profile, {
-      channel: 'chromium',
+      // CHROMIUM_PATH picks another build, e.g. one with proprietary codecs.
+      ...(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : { channel: 'chromium' }),
       headless: false,
       baseURL: ORIGIN,
       env: { ...process.env, WAYLAND_DISPLAY: '' },
