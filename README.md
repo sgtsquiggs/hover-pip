@@ -1,4 +1,4 @@
-# Hover PiP
+# <img src="media/icon.svg" width="48" height="48" alt="" align="absmiddle"> Hover PiP
 
 A Picture-in-Picture button for Chromium browsers, ported from Firefox's toggle.
 Hover a video and the toggle appears on its right edge, as in Firefox. Click it
@@ -74,8 +74,11 @@ npm run demo         # records test-results/demo/raw.mkv
 npm run demo:media   # media/demo.mp4, demo.gif, toggle zooms, media/store/
 ```
 
-`media/store/` has five 1280×800 screenshots and a draft 440×280 small promo
-tile; `media/demo.mp4` is 1280×800 too.
+`media/store/` has five 1280×800 screenshots and a 440×280 small promo tile;
+`media/demo.mp4` is 1280×800 too.
+
+The icon's source is `media/icon.svg`. After editing it, `npm run icons`
+renders `extension/icons/icon-{16,32,48,128}.png`.
 
 ## Release
 
