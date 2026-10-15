@@ -1,0 +1,46 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Big Buck Bunny</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0f0f12; color: #e8e8ec; font: 15px/1.5 "Noto Sans", sans-serif; }
+  header { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 24px; border-bottom: 1px solid #23232a; }
+  header b { font-size: 18px; letter-spacing: .02em; }
+  header input { margin-left: auto; width: 360px; padding: 8px 14px; border: 1px solid #2c2c35; border-radius: 20px; background: #17171c; color: inherit; }
+  main { display: grid; grid-template-columns: 1fr 300px; gap: 24px; max-width: 1240px; margin: 20px auto; padding: 0 20px; }
+  video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; background: #000; }
+  h1 { margin: 14px 0 4px; font-size: 21px; font-weight: 600; }
+  .meta { color: #9a9aa6; font-size: 13px; }
+  p { color: #c4c4cc; max-width: 70ch; }
+  aside h2 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: #9a9aa6; text-transform: uppercase; letter-spacing: .06em; }
+  .card { display: grid; grid-template-columns: 128px 1fr; gap: 10px; margin-bottom: 12px; font-size: 13px; }
+  .card img { width: 128px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; }
+  .card span { color: #9a9aa6; display: block; }
+  .comments { margin-top: 28px; border-top: 1px solid #23232a; padding-top: 16px; }
+  .comment { margin: 14px 0; }
+  .comment b { font-size: 13px; }
+</style>
+<header><b>&#9654; Open Movies</b><input placeholder="Search"></header>
+<main>
+  <section>
+    <video id="v" src="media/bbb.webm" autoplay muted loop playsinline></video>
+    <h1>Big Buck Bunny</h1>
+    <div class="meta">Blender Foundation · 2008 · CC BY 3.0</div>
+    <p>A giant rabbit's peaceful day in the meadow is spoiled by three bullying rodents,
+      and he plots a comical revenge. Made with Blender, the free and open source 3D suite.</p>
+    <div class="comments">
+      <div class="comment"><b>meadowfan</b><p>The butterfly scene gets me every time.</p></div>
+      <div class="comment"><b>pixelpusher</b><p>Still holds up, all these years later.</p></div>
+      <div class="comment"><b>squirrelwatch</b><p>Frank is the real star here.</p></div>
+      <div class="comment"><b>openmovie</b><p>Watching this in a pop-out window while I work.</p></div>
+      <div class="comment"><b>rodentrights</b><p>Rinky deserved better.</p></div>
+    </div>
+  </section>
+  <aside>
+    <h2>Up next</h2>
+    <div class="card"><img src="media/thumb-1.jpg" alt=""><div>The meadow<span>Open Movies</span></div></div>
+    <div class="card"><img src="media/thumb-2.jpg" alt=""><div>Apple tree<span>Open Movies</span></div></div>
+    <div class="card"><img src="media/thumb-3.jpg" alt=""><div>The ambush<span>Open Movies</span></div></div>
+    <div class="card"><img src="media/thumb-4.jpg" alt=""><div>Butterflies<span>Open Movies</span></div></div>
+  </aside>
+</main>

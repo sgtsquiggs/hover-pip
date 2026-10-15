@@ -7,9 +7,13 @@ capture listeners still observe an event targeted at the extension's overlay).
 **Alt+P** toggles PiP on the most prominent video. Rebind it at
 `chrome://extensions/shortcuts`.
 
+![Hovering a video shows the toggle; clicking it pops the video out into a floating window that keeps playing while the page scrolls](media/demo.gif)
+
 Like Firefox, the toggle shows only on videos at least 45 seconds long and
 140×140 px. It starts as the "Pop out this video" pill and switches to the
 compact icon after the first use.
+
+<img src="media/toggle.png" width="480" alt="The Pop out this video pill, hovered, with its explainer"> <img src="media/toggle-compact.png" width="256" alt="The compact toggle icon after first use">
 
 Tested on Chromium 153 and 156.
 
@@ -57,6 +61,22 @@ npx playwright install firefox
 env -u WAYLAND_DISPLAY xvfb-run -a node test/visual/parity.js
 ```
 
+## Demo media
+
+`media/` holds the README demo and Chrome Web Store assets, all from one
+scripted recording: a real X pointer hovers a video on `scripts/demo/page.html`,
+opens Picture-in-Picture from the toggle and browses on, while ffmpeg grabs the
+whole Xvfb screen, PiP window and cursor included. To regenerate (needs ffmpeg,
+Xvfb, uv, ImageMagick; the first run downloads the footage):
+
+```sh
+npm run demo         # records test-results/demo/raw.mkv
+npm run demo:media   # media/demo.mp4, demo.gif, toggle zooms, media/store/
+```
+
+`media/store/` has five 1280×800 screenshots and a draft 440×280 small promo
+tile; `media/demo.mp4` is 1280×800 too.
+
 ## Credits
 
 The toggle's styles, markup, icon, strings, and hover behaviour are ported from
@@ -64,3 +84,6 @@ Firefox 156 (`pipToggle.css`, `videocontrols.js`, `PictureInPictureChild.sys.mjs
 `picture-in-picture-open.svg`), © Mozilla, under the
 [Mozilla Public License 2.0](https://mozilla.org/MPL/2.0/). Verbatim copies are
 in `vendor/firefox-156.0.1/`. This project is MPL-2.0 too.
+
+The demo footage is from [Big Buck Bunny](https://peach.blender.org/), © 2008
+Blender Foundation, under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
