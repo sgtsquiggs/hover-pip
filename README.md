@@ -91,6 +91,11 @@ renders `extension/icons/icon-{16,32,48,128}.png`.
 CI builds the same zip on every run, runs the e2e suite against its unzipped
 contents, and keeps it as the `hover-pip-extension` artifact for 30 days.
 
+## Authors
+
+Hover PiP is by Matthew Crenshaw, co-written with Claude, Anthropic's AI model,
+using [Claude Code](https://claude.com/claude-code).
+
 ## Credits
 
 The toggle's styles, markup, icon, strings, and hover behaviour are ported from
