@@ -16,6 +16,7 @@
     "demo:media": "node scripts/demo/make-media.js",
     "icons": "node scripts/icons.js",
     "package": "node scripts/package.js",
+    "sign": "node scripts/sign.js",
     "test": "node --test 'test/unit/*.test.js'",
     "test:e2e": "env -u WAYLAND_DISPLAY xvfb-run -a -s '-screen 0 1920x1080x24' playwright test",
     "test:smoke": "env -u WAYLAND_DISPLAY CHROMIUM_PATH=${CHROMIUM_PATH:-/usr/bin/chromium} xvfb-run -a -s '-screen 0 1920x1080x24' playwright test -c playwright.smoke.config.js"

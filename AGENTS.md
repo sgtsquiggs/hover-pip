@@ -29,9 +29,10 @@ JavaScript: no build step and no runtime dependencies. MPL-2.0, at
   - `e2e/`: Playwright, headed under Xvfb, with pages in `fixtures/`.
   - `smoke/`: live sites, opt-in.
   - `visual/parity.js`: screenshots compared against Firefox.
-- `scripts/`: `package.js`, `bump-version.js`, `icons.js`, and `demo/` (the
-  recording behind the README and store media).
-- `media/`: README and store assets. `media/icon.svg` is the icon source.
+- `scripts/`: `package.js`, `sign.js`, `bump-version.js`, `icons.js`, and
+  `demo/` (the recording behind the README and release media).
+- `media/`: README and release-page assets (`media/store/` keeps its old
+  name). `media/icon.svg` is the icon source.
 
 ## Commands
 
@@ -40,6 +41,7 @@ npm test              # unit tests
 npm run test:e2e      # e2e: headed Chromium under xvfb-run; needs ffmpeg, Xvfb, uv
 npm run test:smoke    # live sites; never in CI
 npm run package       # dist/hover-pip-<version>.zip
+npm run sign -- <dir> <key.pem>  # dist/hover-pip-<version>.crx, update.xml
 npm run bump -- patch # or minor, major, x.y.z: sets the manifest version
 npm run icons         # media/icon.svg -> extension/icons/*.png
 npm run demo && npm run demo:media   # re-record the demo, regenerate media/
@@ -66,7 +68,9 @@ npm run demo && npm run demo:media   # re-record the demo, regenerate media/
   bodies. Authorship is credited in the README and `package.json`.
 - Before pushing, run `npm test` and `npm run test:e2e`. A behaviour fix comes
   with an e2e test that fails without it.
-- Releases follow the README's Release section.
+- Releases follow the README's Release section: a version bump PR, then a
+  `vX.Y.Z` tag on `main`, which the Release workflow signs and publishes.
+  Push a tag only with the maintainer's go-ahead; a release is public at once.
 
 ## Easy to get wrong
 
@@ -89,5 +93,8 @@ npm run demo && npm run demo:media   # re-record the demo, regenerate media/
 - The product is **Hover PiP**. Firefox appears only as attribution (MPL
   headers, credits, `vendor/`). Never use Firefox or Chrome as a brand name;
   both are trademarks.
+- The `HOVER_PIP_CRX_KEY` secret fixes the extension ID,
+  `iklppbfbkekmbjalepgliappemgchmij`. Never replace the key or change the
+  manifest's `update_url`: installed copies would stop updating.
 - Thresholds and behaviour follow Firefox 156. When porting more, cite the
   Firefox source file. The README lists the deliberate differences.

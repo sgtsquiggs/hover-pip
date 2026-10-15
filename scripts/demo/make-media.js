@@ -1,5 +1,5 @@
-// Turns the recording from record.js into README and Chrome Web Store media:
-// media/demo.mp4 and demo.gif, 1280x800 store screenshots, native-resolution
+// Turns the recording from record.js into README and release-page media:
+// media/demo.mp4 and demo.gif, 1280x800 screenshots, native-resolution
 // zooms of the toggle, and a 440x280 small promo tile. Run with
 // npm run demo:media after npm run demo.
 const fs = require('node:fs');

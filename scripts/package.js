@@ -1,4 +1,4 @@
-// Builds dist/hover-pip-<version>.zip for the Chrome Web Store: the
+// Builds dist/hover-pip-<version>.zip, the release zip: the
 // extension directory plus LICENSE, after checking that every file the
 // manifest names is there.
 const fs = require('node:fs');
