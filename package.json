@@ -2,6 +2,14 @@
   "name": "hover-pip",
   "private": true,
   "license": "MPL-2.0",
+  "author": "Matthew Crenshaw",
+  "contributors": [
+    {
+      "name": "Claude",
+      "email": "noreply@anthropic.com",
+      "url": "https://www.anthropic.com/claude"
+    }
+  ],
   "scripts": {
     "bump": "node scripts/bump-version.js",
     "demo": "env -u WAYLAND_DISPLAY xvfb-run -a -s '-screen 0 2560x1600x24' node scripts/demo/record.js",
