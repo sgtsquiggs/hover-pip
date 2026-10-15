@@ -3,6 +3,8 @@
   "private": true,
   "license": "MPL-2.0",
   "scripts": {
+    "demo": "env -u WAYLAND_DISPLAY xvfb-run -a -s '-screen 0 2560x1600x24' node scripts/demo/record.js",
+    "demo:media": "node scripts/demo/make-media.js",
     "test": "node --test 'test/unit/*.test.js'",
     "test:e2e": "env -u WAYLAND_DISPLAY xvfb-run -a -s '-screen 0 1920x1080x24' playwright test",
     "test:smoke": "env -u WAYLAND_DISPLAY CHROMIUM_PATH=${CHROMIUM_PATH:-/usr/bin/chromium} xvfb-run -a -s '-screen 0 1920x1080x24' playwright test -c playwright.smoke.config.js"
