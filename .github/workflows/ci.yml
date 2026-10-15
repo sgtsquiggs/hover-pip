@@ -36,6 +36,11 @@ jobs:
       - run: npm run package
       # The e2e suite runs against the unzipped package, not the source tree.
       - run: unzip -q dist/hover-pip-*.zip -d dist/unpacked
+      # Releases sign with HOVER_PIP_CRX_KEY; a throwaway key checks signing works.
+      - name: Sign with a throwaway key
+        run: |
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out "$RUNNER_TEMP/throwaway.pem"
+          npm run sign -- dist/unpacked "$RUNNER_TEMP/throwaway.pem"
       - run: npm run test:e2e
         env:
           EXTENSION_DIR: dist/unpacked
