@@ -1,4 +1,5 @@
 node_modules/
+dist/
 test/fixtures/media/
 scripts/demo/media/
 test-results/

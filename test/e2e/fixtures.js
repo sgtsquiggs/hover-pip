@@ -5,7 +5,8 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { test: base, expect, chromium } = require('@playwright/test');
 
-const EXTENSION = path.resolve(__dirname, '../../extension');
+// EXTENSION_DIR tests another copy, e.g. CI's unzipped package.
+const EXTENSION = path.resolve(process.env.EXTENSION_DIR ?? path.join(__dirname, '../../extension'));
 const PORT = 18765;
 const ORIGIN = `http://localhost:${PORT}`;
 const CROSS_ORIGIN = `http://127.0.0.1:${PORT}`;

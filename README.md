@@ -15,7 +15,7 @@ compact icon after the first use.
 
 <img src="media/toggle.png" width="480" alt="The Pop out this video pill, hovered, with its explainer"> <img src="media/toggle-compact.png" width="256" alt="The compact toggle icon after first use">
 
-Tested on Chromium 153 and 156.
+Needs Chromium 153 or later; tested on 153, 154 and 156.
 
 ## Install
 
@@ -76,6 +76,17 @@ npm run demo:media   # media/demo.mp4, demo.gif, toggle zooms, media/store/
 
 `media/store/` has five 1280×800 screenshots and a draft 440×280 small promo
 tile; `media/demo.mp4` is 1280×800 too.
+
+## Release
+
+1. In a pull request, bump the version: `npm run bump -- patch` (or `minor`,
+   `major`, or an exact `x.y.z`).
+2. After it merges, run `npm run package` on `main`. It checks that every file
+   the manifest names exists and writes `dist/hover-pip-<version>.zip`, the
+   extension plus `LICENSE`, ready to upload to the Chrome Web Store.
+
+CI builds the same zip on every run, runs the e2e suite against its unzipped
+contents, and keeps it as the `hover-pip-extension` artifact for 30 days.
 
 ## Credits
 
