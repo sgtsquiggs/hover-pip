@@ -19,8 +19,25 @@ Needs Chromium 153 or later; tested on 153, 154 and 156.
 
 ## Install
 
-1. Open `chrome://extensions` and turn on **Developer mode**.
-2. Click **Load unpacked** and pick the `extension/` directory.
+Hover PiP is published on
+[GitHub Releases](https://github.com/sgtsquiggs/hover-pip/releases), not in
+any browser's extension store.
+
+**ungoogled-chromium:** set `chrome://flags/#extension-mime-request-handling`
+to **Always prompt for install**, then open the `.crx` link on the latest
+release and accept the prompt. ungoogled-chromium never checks for extension
+updates itself; with
+[chromium-web-store](https://github.com/NeverDecaf/chromium-web-store)
+installed, new versions show up on its badge.
+
+**Other Chromium browsers** generally refuse a `.crx` from outside their store:
+
+1. Unzip `hover-pip-<version>.zip` from the latest release.
+2. Open `chrome://extensions` and turn on **Developer mode**.
+3. Click **Load unpacked** and pick the unzipped folder (or `extension/` in a
+   clone of this repository).
+
+An unpacked copy doesn't update; repeat with each release.
 
 Tabs that are already open get the toggle right away, after an install or an
 update.
@@ -63,7 +80,7 @@ env -u WAYLAND_DISPLAY xvfb-run -a node test/visual/parity.js
 
 ## Demo media
 
-`media/` holds the README demo and Chrome Web Store assets, all from one
+`media/` holds the README demo and screenshots for release pages, all from one
 scripted recording: a real X pointer hovers a video on `scripts/demo/page.html`,
 opens Picture-in-Picture from the toggle and browses on, while ffmpeg grabs the
 whole Xvfb screen, PiP window and cursor included. To regenerate (needs ffmpeg,
@@ -84,12 +101,30 @@ renders `extension/icons/icon-{16,32,48,128}.png`.
 
 1. In a pull request, bump the version: `npm run bump -- patch` (or `minor`,
    `major`, or an exact `x.y.z`).
-2. After it merges, run `npm run package` on `main`. It checks that every file
-   the manifest names exists and writes `dist/hover-pip-<version>.zip`, the
-   extension plus `LICENSE`, ready to upload to the Chrome Web Store.
+2. After it merges, tag that commit and push the tag:
 
-CI builds the same zip on every run, runs the e2e suite against its unzipped
-contents, and keeps it as the `hover-pip-extension` artifact for 30 days.
+   ```sh
+   git fetch origin && git tag vX.Y.Z origin/main && git push origin vX.Y.Z
+   ```
+
+The tag starts the Release workflow. It checks that the tag matches the
+manifest version and is on `main`, then runs the CI job: unit tests,
+`npm run package` and the e2e suite against the packaged zip. It signs that zip
+into `hover-pip-<version>.crx` and publishes a GitHub release with the `.crx`,
+the `.zip` and `update.xml`. The manifest's `update_url` points at
+`releases/latest/download/update.xml`, so every installed copy checks the
+newest release.
+
+`npm run package` writes `dist/hover-pip-<version>.zip`: the extension plus
+`LICENSE`, after checking that every file the manifest names exists. CI builds
+it on every run and keeps it as the `hover-pip-extension` artifact for 30 days.
+`npm run sign -- <dir> <key.pem>` signs an unpacked copy with Chromium's own
+packer and writes `dist/update.xml` next to the `.crx`.
+
+The signing key is the `HOVER_PIP_CRX_KEY` Actions secret, with a copy kept by
+the maintainer. It fixes the extension ID, `iklppbfbkekmbjalepgliappemgchmij`:
+a release signed with any other key installs as a different extension, and
+existing copies stop updating.
 
 ## Authors
 

@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  # The release workflow runs the same job before it signs the zip.
+  workflow_call:
 
 permissions:
   contents: read
